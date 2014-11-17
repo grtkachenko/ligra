@@ -28,9 +28,11 @@ endif
 
 COMMON= ligra.h graph.h utils.h IO.h parallel.h gettime.h quickSort.h parseCommandLine.h
 
-ALL= BFS BC Components Radii PageRank PageRankDelta BellmanFord BFSCC
+BF= BellmanFord BellmanFordDummy BellmanFordPar1
+ALL= BFS BC Components Radii PageRank PageRankDelta BFSCC $(BF)
 
 all: $(ALL)
+bf: $(BF)
 
 % : %.C $(COMMON)
 	$(PCC) $(PCFLAGS) -o $@ $< 
