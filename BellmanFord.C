@@ -82,6 +82,8 @@ void Compute(graph<vertex> GA, intT start) {
     Frontier.del();
     Frontier = output;
   } 
+  for (int i = 0; i < n; i++) std::cout << ShortestPathLen[i] << " ";
+  std::cout << endl;
   Frontier.del();
   free(Visited);
   free(ShortestPathLen);

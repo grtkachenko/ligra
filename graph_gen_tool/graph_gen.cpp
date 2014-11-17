@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const int MAX_W = 30;
+const int MAX_W = 500;
 
 int main(int argc, char* argv[]) {
     freopen("../test_graph", "w", stdout);
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (i != j) {
-                printf("%d\n", -MAX_W / 2 + rand() % MAX_W);
+                printf("%d\n", +MAX_W / 2 + rand() % MAX_W);
             }
         }
     }

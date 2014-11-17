@@ -12,10 +12,14 @@ void Compute(graph<vertex> GA, intT start) {
         {for (int j = 0; j < n; j++) {
             int curMin = INT_MAX / 2;
             for (int k = 0; k < GA.V[j].getInDegree(); k++) {
-                curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + 1);
+                curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
             }
             ShortestPathLen[j] = min(ShortestPathLen[j], curMin);
         }}
     }
+    for (int i = 0; i < n; i++) {
+        std::cout << ShortestPathLen[i] << " ";
+    }
+    std::cout << endl;
     free(ShortestPathLen);
 }

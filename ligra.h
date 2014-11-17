@@ -374,11 +374,10 @@ int parallel_main(int argc, char* argv[]) {
   bool symmetric = P.getOptionValue("-s");
   bool binary = P.getOptionValue("-b");
   long start = P.getOptionLongValue("-r",0);
-  long rounds = P.getOptionLongValue("-rounds",3);
+  long rounds = P.getOptionLongValue("-rounds",1);
   if(symmetric) {
     graph<symmetricVertex> G = 
       readGraph<symmetricVertex>(iFile,symmetric,binary); //symmetric graph
-    Compute(G, (intT) start);
     for(int r=0;r<rounds;r++) {
       startTime();
       Compute(G,(intT)start);
@@ -388,7 +387,6 @@ int parallel_main(int argc, char* argv[]) {
   } else {
     graph<asymmetricVertex> G = 
       readGraph<asymmetricVertex>(iFile,symmetric,binary); //asymmetric graph
-    Compute(G,(intT)start);
     for(int r=0;r<rounds;r++) {
       startTime();
       Compute(G,(intT)start);
