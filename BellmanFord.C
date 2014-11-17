@@ -70,6 +70,7 @@ void Compute(graph<vertex> GA, intT start) {
 
   intT round = 0;
   while(!Frontier.isEmpty()){
+//  std::cout << "Round number " << round << std::endl;
     round++;
     if(round == n) {
       //negative weight cycle
