@@ -9,13 +9,18 @@ void Compute(graph<vertex> GA, intT start) {
     {parallel_for(intT i=0;i<n;i++) ShortestPathLen[i] = INT_MAX/2;}
     ShortestPathLen[start] = 0;
     for (int i = 0; i < n; i++) {
+        bool updated = false;
         {for (int j = 0; j < n; j++) {
             int curMin = INT_MAX / 2;
             for (int k = 0; k < GA.V[j].getInDegree(); k++) {
                 curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
             }
-            ShortestPathLen[j] = min(ShortestPathLen[j], curMin);
+            if (curMin < ShortestPathLen[j]) {
+                ShortestPathLen[j] = curMin;
+                updated = true;
+            }
         }}
+        if (!updated) break;
     }
     for (int i = 0; i < n; i++) {
         std::cout << ShortestPathLen[i] << " ";
