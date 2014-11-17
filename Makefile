@@ -21,8 +21,9 @@ PCC = g++
 PCFLAGS = -fopenmp -O3 -DOPENMP $(INTT) $(INTE)
 
 else
-PCC = g++
-PCFLAGS = -O2 $(INTT) $(INTE)
+PCC = ~/cilkplus-install/bin/g++
+PCFLAGS = -fcilkplus -lcilkrts -O2 -DCILK $(INTT) $(INTE)
+PLFLAGS = -fcilkplus -lcilkrts
 endif
 
 COMMON= ligra.h graph.h utils.h IO.h parallel.h gettime.h quickSort.h parseCommandLine.h
