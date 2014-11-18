@@ -72,7 +72,7 @@ void Compute(graph<vertex> GA, intT start) {
   while(!Frontier.isEmpty()){
 //  std::cout << "Round number " << round << std::endl;
     round++;
-    if(round == n) {
+    if(round == n + 1) {
       //negative weight cycle
       {parallel_for(intT i=0;i<n;i++) ShortestPathLen[i] = -(INT_MAX/2);}
       break;
