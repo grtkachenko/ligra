@@ -28,7 +28,7 @@ endif
 
 COMMON= ligra.h graph.h utils.h IO.h parallel.h gettime.h quickSort.h parseCommandLine.h
 
-BF= BellmanFord BellmanFordDummy BellmanFordPar1
+BF= BellmanFord BellmanFordDummy BellmanFordPar1 BellmanFordPar2
 ALL= $(BF)
 
 all: $(ALL)
