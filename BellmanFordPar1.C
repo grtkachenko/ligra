@@ -2,49 +2,72 @@
 #include "ligra.h"
 #include <cilk/cilk.h>
 #include <cilk/reducer_min.h>
+#include <cilk/cilk_api.h>
 
 const int nb_edges_cutoff = 5000;
 
 template <class vertex>
-void Compute(graph<vertex> GA, intT start) {
+bool update(graph<vertex> & GA, int from, int to, int * ShortestPathLen) {
+    bool updated = false;
+    for (int j = from; j < to; j++) {
+        int curMin = INT_MAX / 2;
+        for (int k = 0; k < GA.V[j].getInDegree(); k++) {
+            curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
+        }
+        if (curMin < ShortestPathLen[j]) {
+            updated = true;
+            ShortestPathLen[j] = curMin; 
+        }
+    }
+    return updated;
+}
+
+template <class vertex>
+int* Compute(graph<vertex> GA, intT start) {
     intT n = GA.n;
     //initialize ShortestPathLen to "infinity"
-    int* ShortestPathLen = newA(int,n);
+    int * ShortestPathLen = newA(int,n);
     {parallel_for(intT i=0;i<n;i++) ShortestPathLen[i] = INT_MAX/2;}
     ShortestPathLen[start] = 0;
-    bool* BigDegree = newA(bool, n);
-    for (int i = 0; i < n; i++) {
-        BigDegree[i] = GA.V[i].getInDegree() > nb_edges_cutoff;
+    int num_workers = __cilkrts_get_nworkers();
+    int* from = newA(int, num_workers);
+    int* to = newA(int, num_workers);
+    int dist = n / num_workers;
+    from[0] = 0;
+    to[0] = dist;
+    for (int i = 1; i < num_workers; i++) {
+        from[i] = to[i - 1];
+        to[i] = from[i] + dist;
     }
-    for (int i = 0; i < n; i++) {
-        bool updated = false;
-        
-        {for (int j = 0; j < n; j++) {
-            if (!BigDegree[j]) {
-                int curMin = INT_MAX / 2;
-                for (int k = 0; k < GA.V[j].getInDegree(); k++) {
-                    curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
-                }
-                if (curMin < ShortestPathLen[j]) {
-                    updated = true;
-                    ShortestPathLen[j] = curMin; 
-                }
-            } else {
-                cilk::reducer<cilk::op_min<int> > curMin;
-                cilk_for (int k = 0; k < GA.V[j].getInDegree(); k++) {
-                    curMin->calc_min(ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
-                }
-                if (curMin.get_value() < ShortestPathLen[j]) {
-                    updated = true;
-                    ShortestPathLen[j] = curMin.get_value(); 
-                }
-            }
-        }}
-        if (!updated) break;
+    to[num_workers - 1] = n;
+
+    std::cout << n << std::endl;
+    for (int i = 0; i < num_workers; i++) {
+        std::cout << from[i] << " " << to[i] << std::endl;
     }
+
+    int it = 0;
+    bool have_neg_cycle = true;
     for (int i = 0; i < n; i++) {
-        std::cout << ShortestPathLen[i] << " ";
+        it++;
+        volatile bool updated = false;
+        {
+            for (int j = 0; j < num_workers - 1; j++) {
+               bool res = cilk_spawn update(GA, from[j], to[j], ShortestPathLen);
+               updated |= res;
+            } 
+            updated |= update(GA, from[num_workers - 1], to[num_workers - 1], ShortestPathLen);
+            cilk_sync;
+        }
+        if (!updated) {
+            have_neg_cycle = false;
+            break;
+        }
     }
-    std::cout << endl;
-    free(ShortestPathLen);
+    std::cout << "Iterations " << (it + 1) << std::endl;
+    std::cout << "Have neg cycle " << have_neg_cycle << std::endl;
+
+    free(from);
+    free(to);
+    return ShortestPathLen;
 }

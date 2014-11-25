@@ -365,7 +365,7 @@ vertexSubset vertexFilter(vertexSubset V, F filter) {
 inline bool cond_true (intT d) { return 1; }
 
 template<class vertex>
-void Compute(graph<vertex>, intT);
+int* Compute(graph<vertex>, intT);
 
 //driver
 int parallel_main(int argc, char* argv[]) {  
@@ -373,14 +373,16 @@ int parallel_main(int argc, char* argv[]) {
   char* iFile = P.getArgument(0);
   bool symmetric = P.getOptionValue("-s");
   bool binary = P.getOptionValue("-b");
+  bool dist = P.getOptionValue("-d");
   long start = P.getOptionLongValue("-r",0);
   long rounds = P.getOptionLongValue("-rounds",1);
+  int* dists;
   if(symmetric) {
     graph<symmetricVertex> G = 
       readGraph<symmetricVertex>(iFile,symmetric,binary); //symmetric graph
     for(int r=0;r<rounds;r++) {
       startTime();
-      Compute(G,(intT)start);
+      dist = Compute(G,(intT)start);
       nextTime("Running time");
     }
     G.del(); 
@@ -389,9 +391,13 @@ int parallel_main(int argc, char* argv[]) {
       readGraph<asymmetricVertex>(iFile,symmetric,binary); //asymmetric graph
     for(int r=0;r<rounds;r++) {
       startTime();
-      Compute(G,(intT)start);
+      dists = Compute(G,(intT)start);
       nextTime("Running time");
+      if (dist) for (int i = 0; i < G.n; i++) {
+         std::cout << dists[i] << " ";
+        }
     }
+
     G.del();
   }
 }

@@ -6,7 +6,7 @@
 const int nb_edges_cutoff = 5000;
 
 template <class vertex>
-void Compute(graph<vertex> GA, intT start) {
+int* Compute(graph<vertex> GA, intT start) {
     intT n = GA.n;
     intT m = GA.m;
     //initialize ShortestPathLen to "infinity"
@@ -41,8 +41,8 @@ void Compute(graph<vertex> GA, intT start) {
         std::cout << ShortestPathLen[i] << " ";
     }
     std::cout << endl;
-    free(ShortestPathLen);
     free(edge_from);
     free(edge_to);
     free(edge_w);
+    return ShortestPathLen;
 }

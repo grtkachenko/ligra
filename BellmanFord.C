@@ -56,7 +56,7 @@ struct BF_Vertex_F {
 };
 
 template <class vertex>
-void Compute(graph<vertex> GA, intT start) {
+int* Compute(graph<vertex> GA, intT start) {
   intT n = GA.n;
   //initialize ShortestPathLen to "infinity"
   int* ShortestPathLen = newA(int,n);
@@ -69,10 +69,12 @@ void Compute(graph<vertex> GA, intT start) {
   vertexSubset Frontier(n,start); //initial frontier
 
   intT round = 0;
+  bool have_neg_cycle = false;
   while(!Frontier.isEmpty()){
 //  std::cout << "Round number " << round << std::endl;
     round++;
     if(round == n + 1) {
+        have_neg_cycle = true;
       //negative weight cycle
       {parallel_for(intT i=0;i<n;i++) ShortestPathLen[i] = -(INT_MAX/2);}
       break;
@@ -82,9 +84,9 @@ void Compute(graph<vertex> GA, intT start) {
     Frontier.del();
     Frontier = output;
   } 
-  for (int i = 0; i < n; i++) std::cout << ShortestPathLen[i] << " ";
-  std::cout << endl;
+  std::cout << "Iterations " << round << std::endl;
+  std::cout << "Have neg cycle " << have_neg_cycle << std::endl;
   Frontier.del();
   free(Visited);
-  free(ShortestPathLen);
+  return ShortestPathLen;
 }
