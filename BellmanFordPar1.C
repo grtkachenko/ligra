@@ -6,20 +6,21 @@
 
 const int nb_edges_cutoff = 5000;
 
+volatile bool updated = false;
+
 template <class vertex>
-bool update(graph<vertex> & GA, int from, int to, int * ShortestPathLen) {
-    bool updated = false;
+void update(graph<vertex> & GA, int from, int to, int * ShortestPathLen) {
     for (int j = from; j < to; j++) {
         int curMin = INT_MAX / 2;
         for (int k = 0; k < GA.V[j].getInDegree(); k++) {
-            curMin = min(curMin, ShortestPathLen[GA.V[j].getInNeighbor(k)] + GA.V[j].getInWeight(k));
+            int from_d = ShortestPathLen[GA.V[j].getInNeighbor(k)];
+            curMin = min(curMin, from_d + GA.V[j].getInWeight(k));
         }
         if (curMin < ShortestPathLen[j]) {
             updated = true;
             ShortestPathLen[j] = curMin; 
         }
     }
-    return updated;
 }
 
 template <class vertex>
@@ -49,19 +50,23 @@ int* Compute(graph<vertex> GA, intT start) {
     int it = 0;
     bool have_neg_cycle = true;
     for (int i = 0; i < n; i++) {
+        updated = false;
         it++;
-        volatile bool updated = false;
         {
             for (int j = 0; j < num_workers - 1; j++) {
-               bool res = cilk_spawn update(GA, from[j], to[j], ShortestPathLen);
-               updated |= res;
+               cilk_spawn update(GA, from[j], to[j], ShortestPathLen);
             } 
-            updated |= update(GA, from[num_workers - 1], to[num_workers - 1], ShortestPathLen);
+            update(GA, from[num_workers - 1], to[num_workers - 1], ShortestPathLen);
             cilk_sync;
         }
         if (!updated) {
             have_neg_cycle = false;
             break;
+        }
+    }
+    if (have_neg_cycle) {
+        for (int i = 0; i < n; i++) {
+            ShortestPathLen[i] = -(INT_MAX/2);
         }
     }
     std::cout << "Iterations " << (it + 1) << std::endl;

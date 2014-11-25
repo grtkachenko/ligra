@@ -27,6 +27,9 @@ int* Compute(graph<vertex> GA, intT start) {
             break;
         }
     }
+    if (have_neg_cycle) {
+        for (int i = 0; i < n; i++) ShortestPathLen[i] = -(INT_MAX/2);
+    }
     std::cout << "Iterations " << (it + 1) << std::endl;
     std::cout << "Have neg cycle " << have_neg_cycle << std::endl;
             
