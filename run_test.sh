@@ -5,7 +5,9 @@ echo "Dummy is running..."
 echo "Par is running..." 
 ./BellmanFordPar1 -d test.dot > 3
 echo "Ligra VS Dummy" 
-diff 1 2 
+diff 1 2 | grep It 
+diff 1 2 | grep Run 
 echo "____________"
 echo "Ligra VS Par1" 
-diff 1 3 
+diff 1 3 | grep It
+diff 1 3 | grep Run 
